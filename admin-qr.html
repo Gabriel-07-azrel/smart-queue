@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>QR Generated | Smart Queue Companion</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Inter, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            width: 420px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        #qrcode {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .generate {
+            background: #1e88e5;
+            color: white;
+        }
+
+        .generate:hover {
+            background: #1565c0;
+        }
+
+        .download {
+            background: #1565c0;
+            color: white;
+            display: none;
+        }
+
+        .download:hover {
+            background: #0d47a1;
+        }
+
+        .next {
+            background: #e0e0e0;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .next.active {
+            background: #e3f2fd;
+            color: #1e88e5;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>Your Business QR</h2>
+        <p>Scan this QR to directly access the customer queue page</p>
+
+        <div id="qrcode"></div>
+
+        <button class="generate" onclick="generateQR()">Generate QR</button>
+        <button class="download" id="downloadBtn" onclick="downloadQR()">Download QR</button>
+        <button class="next" id="nextBtn" disabled onclick="goNext()">Next</button>
+    </div>
+
+    <script>
+
+        const business = JSON.parse(localStorage.getItem("tempBusiness"));
+
+        if (!business) {
+            alert("No business found.");
+            window.location.href = "admin-details.html";
+        }
+
+        let qrGenerated = false;
+
+        function generateQR() {
+            if (qrGenerated) return;
+
+            const qrBox = document.getElementById("qrcode");
+            qrBox.innerHTML = "";
+
+            // 🔥 LINK TO CUSTOMER QUEUE PAGE
+            const qrLink = window.location.origin +
+                "/customer-queue.html?business=" + business.id;
+
+            new QRCode(qrBox, {
+                text: qrLink,
+                width: 220,
+                height: 220
+            });
+
+            qrGenerated = true;
+
+            document.getElementById("downloadBtn").style.display = "block";
+
+            const nextBtn = document.getElementById("nextBtn");
+            nextBtn.classList.add("active");
+            nextBtn.disabled = false;
+        }
+
+        function downloadQR() {
+            const canvas = document.querySelector("#qrcode canvas");
+            if (!canvas) return;
+
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = business.name + "_QR.png";
+            link.click();
+        }
+
+        function goNext() {
+            if (!qrGenerated) return;
+
+            let businesses = JSON.parse(localStorage.getItem("businesses")) || [];
+
+            businesses.push(business);
+
+            localStorage.setItem("businesses", JSON.stringify(businesses));
+            localStorage.removeItem("tempBusiness");
+
+            window.location.href = "admin-portal.html";
+        }
+
+    </script>
+
+</body>
+
+</html>

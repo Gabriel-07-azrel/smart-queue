@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Portal | Smart Queue Companion</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 26px 50px;
+            background: linear-gradient(135deg, #1e88e5, #42a5f5);
+            color: white;
+            box-shadow: 0 8px 24px rgba(30, 136, 229, 0.35);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .add-btn {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            border: none;
+            background: white;
+            color: #1e88e5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        /* CONTENT */
+        .content {
+            padding: 50px;
+        }
+
+        .content h2 {
+            font-size: 22px;
+            margin-bottom: 26px;
+            color: #333;
+        }
+
+        .business-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 30px;
+        }
+
+        /* CARD */
+        .card {
+            background: white;
+            padding: 26px;
+            border-radius: 18px;
+            position: relative;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.35s ease;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(180deg, #1e88e5, #64b5f6);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 55px rgba(0, 0, 0, 0.18);
+        }
+
+        .card h3 {
+            font-size: 18px;
+            margin-bottom: 6px;
+            color: #222;
+        }
+
+        .type {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e88e5;
+            background: #e3f2fd;
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-top: 12px;
+        }
+
+        /* DELETE BUTTON */
+        .delete {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #ffebee;
+            border: none;
+            color: #e53935;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+
+        .delete:hover {
+            background: #e53935;
+            color: white;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Admin Portal</h1>
+        <button class="add-btn" onclick="location.href='admin-details.html'">
+            + Add New Business
+        </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <h2>Your Businesses</h2>
+        <div class="business-list" id="businessList"></div>
+    </div>
+
+    <script>
+
+        const businessListEl = document.getElementById("businessList");
+        let businesses = JSON.parse(localStorage.getItem("businesses")) || [];
+
+        function renderBusinesses() {
+            businessListEl.innerHTML = "";
+
+            if (businesses.length === 0) {
+                window.location.href = "role.html";
+                return;
+            }
+
+            businesses.forEach((biz, index) => {
+
+                const card = document.createElement("div");
+                card.className = "card";
+
+                card.innerHTML = `
+                    <button class="delete" onclick="event.stopPropagation(); deleteBusiness(${index})">
+                        Delete
+                    </button>
+                    <h3>${biz.name}</h3>
+                    <div class="type">${biz.type}</div>
+                `;
+
+                // 🔥 CLICK CARD TO OPEN BUSINESS DASHBOARD
+                card.onclick = function () {
+                    localStorage.setItem("activeBusinessId", biz.id);
+                    window.location.href = "business-dashboard.html";
+                };
+
+                businessListEl.appendChild(card);
+            });
+        }
+
+        function deleteBusiness(index) {
+
+            const confirmDelete = confirm("Are you sure you want to delete this business?");
+            if (!confirmDelete) return;
+
+            // remove queue related to this business
+            localStorage.removeItem("queue_" + businesses[index].id);
+            localStorage.removeItem("qr_" + businesses[index].id);
+
+            businesses.splice(index, 1);
+            localStorage.setItem("businesses", JSON.stringify(businesses));
+
+            renderBusinesses();
+        }
+
+        renderBusinesses();
+
+    </script>
+
+</body>
+
+</html>

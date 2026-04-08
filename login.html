@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Smart Queue Companion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 380px;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin-bottom: 30px;
+        }
+
+        .card input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .card button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            background: #1e88e5;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .error {
+            color: red;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>Login</h2>
+
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+
+        <button onclick="login()">Continue</button>
+
+        <div class="error" id="errorMsg">Invalid username or password</div>
+    </div>
+
+    <script>
+
+        function login() {
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMsg = document.getElementById("errorMsg");
+
+            errorMsg.style.display = "none";
+
+            if (username === "gabi" && password === "123") {
+
+                localStorage.setItem("userRole", "admin");
+                localStorage.setItem("loggedInUser", "gabi");
+
+                window.location.href = "role.html";
+
+            } else if (username === "gabriel" && password === "1234") {
+
+                localStorage.setItem("userRole", "customer");
+                localStorage.setItem("loggedInUser", "gabriel");
+
+                window.location.href = "role.html";
+
+            } else {
+                errorMsg.style.display = "block";
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #f4f7fb;
+            padding: 40px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .queue-info {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Select Business</h1>
+
+    <div class="grid" id="businessGrid"></div>
+
+    <script>
+
+        const businesses = JSON.parse(localStorage.getItem("businesses")) || [];
+        const grid = document.getElementById("businessGrid");
+
+        if (businesses.length === 0) {
+            grid.innerHTML = "<p>No businesses available.</p>";
+        }
+
+        businesses.forEach(biz => {
+            const queue = JSON.parse(localStorage.getItem("queue_" + biz.id)) || [];
+
+            grid.innerHTML += `
+        <div class="card" onclick="openQueue('${biz.id}')">
+            <h3>${biz.name}</h3>
+            <p>${biz.type}</p>
+            <div class="queue-info">
+                People in Queue: ${queue.length}
+            </div>
+        </div>
+    `;
+        });
+
+        function openQueue(id) {
+            localStorage.setItem("customerBusinessId", id);
+            window.location.href = "customer-queue.html";
+        }
+
+    </script>
+
+</body>
+
+</html>

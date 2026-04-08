@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Business Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #f4f7fb;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .counter {
+            background: #1e88e5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .add {
+            background: #1e88e5;
+            color: white;
+        }
+
+        .cancel {
+            background: #ffebee;
+            color: #e53935;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f1f3f6;
+        }
+
+        .method-online {
+            color: #1e88e5;
+            font-weight: 600;
+        }
+
+        .method-physical {
+            color: #43a047;
+            font-weight: 600;
+        }
+
+        .search-bar {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Business Queue Dashboard</h1>
+        <div class="counter" id="totalCount">Total: 0</div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="section">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search...">
+            <select id="searchType">
+                <option value="name">Search by Name</option>
+                <option value="token">Search by Token</option>
+            </select>
+            <button onclick="searchQueue()">Search</button>
+            <button onclick="renderQueue()">Reset</button>
+        </div>
+    </div>
+
+    <!-- PHYSICAL BOOKING -->
+    <div class="section">
+        <h3>Add Physical Booking</h3><br>
+        <input type="text" id="pName" placeholder="Customer Name">
+        <input type="number" id="pAge" placeholder="Age">
+        <button class="add" onclick="addPhysical()">Add</button>
+    </div>
+
+    <!-- ONLINE SIMULATION -->
+    <div class="section">
+        <h3>Simulate Online Booking</h3><br>
+        <input type="text" id="oName" placeholder="Customer Name">
+        <input type="number" id="oAge" placeholder="Age">
+        <button class="add" onclick="addOnline()">Add</button>
+    </div>
+
+    <!-- QUEUE TABLE -->
+    <div class="section">
+        <h3>Current Queue</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Method</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="queueBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+
+        let queue = JSON.parse(localStorage.getItem("queue")) || [];
+
+        function saveQueue() {
+            localStorage.setItem("queue", JSON.stringify(queue));
+        }
+
+        function updateTokens() {
+            queue.forEach((person, index) => {
+                person.token = index + 1;
+            });
+        }
+
+        function renderQueue() {
+            updateTokens();
+            saveQueue();
+
+            const body = document.getElementById("queueBody");
+            body.innerHTML = "";
+
+            queue.forEach((person, index) => {
+                body.innerHTML += `
+            <tr>
+                <td>${person.token}</td>
+                <td>${person.name}</td>
+                <td>${person.age}</td>
+                <td class="${person.method === 'Online' ? 'method-online' : 'method-physical'}">
+                    ${person.method}
+                </td>
+                <td>
+                    <button class="cancel" onclick="cancelBooking(${index})">Cancel</button>
+                </td>
+            </tr>
+        `;
+            });
+
+            document.getElementById("totalCount").innerText = "Total: " + queue.length;
+        }
+
+        function addPhysical() {
+            const name = document.getElementById("pName").value;
+            const age = document.getElementById("pAge").value;
+            if (!name || !age) return;
+            queue.push({ name, age, method: "Physical" });
+            renderQueue();
+        }
+
+        function addOnline() {
+            const name = document.getElementById("oName").value;
+            const age = document.getElementById("oAge").value;
+            if (!name || !age) return;
+            queue.push({ name, age, method: "Online" });
+            renderQueue();
+        }
+
+        function cancelBooking(index) {
+            queue.splice(index, 1);
+            renderQueue();
+        }
+
+        function searchQueue() {
+            const value = document.getElementById("searchInput").value.toLowerCase();
+            const type = document.getElementById("searchType").value;
+
+            const filtered = queue.filter(person => {
+                if (type === "name") {
+                    return person.name.toLowerCase().includes(value);
+                } else {
+                    return String(person.token).includes(value);
+                }
+            });
+
+            const body = document.getElementById("queueBody");
+            body.innerHTML = "";
+            filtered.forEach((person, index) => {
+                body.innerHTML += `
+        <tr>
+            <td>${person.token}</td>
+            <td>${person.name}</td>
+            <td>${person.age}</td>
+            <td>${person.method}</td>
+            <td></td>
+        </tr>`;
+            });
+        }
+
+        renderQueue();
+
+    </script>
+
+</body>
+
+</html>

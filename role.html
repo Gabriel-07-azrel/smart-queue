@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Select Role | Smart Queue Companion</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        /* Background dots */
+        .background {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image:
+                radial-gradient(#1e88e5 1px, transparent 1px),
+                radial-gradient(#e53935 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            opacity: 0.12;
+            animation: drift 40s linear infinite;
+        }
+
+        @keyframes drift {
+            to {
+                transform: translate(-300px, -300px);
+            }
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            padding: 80px 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 50px;
+            max-width: 520px;
+        }
+
+        .roles {
+            display: flex;
+            gap: 40px;
+        }
+
+        .card {
+            flex: 1;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        .card.admin {
+            border-top: 4px solid #1e88e5;
+        }
+
+        .card.customer {
+            border-top: 4px solid #26c6da;
+        }
+
+        .card h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .card button {
+            margin-top: 20px;
+            padding: 12px 26px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            background: #1e88e5;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .card.customer button {
+            background: #26c6da;
+        }
+
+        .card button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="background"></div>
+
+    <div class="content">
+        <h1>Choose Your Role</h1>
+        <p>
+            Select how you want to use Smart Queue Companion.
+            You can manage queues as an admin or book tokens as a customer.
+        </p>
+
+        <div class="roles">
+            <!-- Admin card -->
+            <div class="card admin">
+                <h2>Admin</h2>
+                <p>
+                    Register your shop or clinic, generate QR codes,
+                    manage queues, and control customer flow digitally.
+                </p>
+                <button onclick="goToAdmin()">
+                    Continue as Admin
+                </button>
+            </div>
+
+            <!-- Customer card -->
+            <div class="card customer">
+                <h2>Customer</h2>
+                <p>
+                    Browse nearby shops or clinics, check queue status,
+                    book tokens online, and get notified before your turn.
+                </p>
+                <button onclick="location.href='customer-home.html'">
+                    Continue as Customer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SMART ADMIN REDIRECTION LOGIC -->
+    <script>
+        function goToAdmin() {
+            const businesses = JSON.parse(localStorage.getItem("businesses")) || [];
+
+            if (businesses.length > 0) {
+                // Existing admin → go directly to portal
+                window.location.href = "admin-portal.html";
+            } else {
+                // New admin or all businesses deleted
+                window.location.href = "admin-details.html";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
