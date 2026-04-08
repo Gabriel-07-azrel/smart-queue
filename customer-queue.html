@@ -4,14 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Queue Status</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         * {
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
         }
 
         body {
@@ -19,48 +18,27 @@
             padding: 40px;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        button {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 8px;
-            background: #1e88e5;
-            color: white;
-            cursor: pointer;
-        }
-
         .section {
             background: white;
             padding: 25px;
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             margin-bottom: 25px;
         }
 
         input {
-            padding: 8px;
-            margin-right: 10px;
+            padding: 10px;
             border-radius: 8px;
             border: 1px solid #ddd;
+            margin-right: 10px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th,
-        td {
+        button {
             padding: 10px;
-            border-bottom: 1px solid #eee;
-            text-align: center;
+            border-radius: 8px;
+            border: none;
+            background: #1e88e5;
+            color: white;
+            cursor: pointer;
         }
 
         .cancel {
@@ -68,160 +46,159 @@
             color: #e53935;
         }
 
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
+        .highlight {
+            background: #e3f2fd;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <h1>Queue Status</h1>
-        <button onclick="showQR()">Show QR</button>
-    </div>
+<h1>Queue Status</h1>
 
-    <div class="section">
-        <h3>Book Token (Max 3)</h3><br>
-        <input id="name" placeholder="Your Name">
-        <input id="age" type="number" placeholder="Age">
-        <button onclick="book()">Book</button>
-    </div>
+<div class="section">
+    <h3>Book Token (Max 3)</h3><br>
+    <input id="name" placeholder="Your Name">
+    <input id="age" type="number" placeholder="Age">
+    <button onclick="book()">Book</button>
+</div>
 
-    <div class="section">
-        <h3>Current Queue</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Token</th>
-                    <th>Name</th>
-                    <th>Method</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="queueBody"></tbody>
-        </table>
-    </div>
+<div class="section">
+    <h3>Your Status</h3>
+    <p id="myStatus">Not booked</p>
+</div>
 
-    <div class="modal" id="qrModal">
-        <div class="modal-content">
-            <div id="qrImage"></div><br>
-            <button onclick="closeQR()">Close</button>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-
-    <script>
-
-        // Get business ID
-        const params = new URLSearchParams(window.location.search);
-        let businessId = params.get("business") || localStorage.getItem("customerBusinessId");
-
-        if (!businessId) {
-            document.body.innerHTML = "<h2 style='padding:40px'>No business selected.</h2>";
-        }
-
-        localStorage.setItem("customerBusinessId", businessId);
-
-        // Load queue
-        let queue = JSON.parse(localStorage.getItem("queue_" + businessId)) || [];
-
-        function saveQueue() {
-            localStorage.setItem("queue_" + businessId, JSON.stringify(queue));
-        }
-
-        function updateTokens() {
-            queue.forEach((person, index) => {
-                person.token = index + 1;
-            });
-        }
-
-        function render() {
-            updateTokens();
-            saveQueue();
-
-            const body = document.getElementById("queueBody");
-            body.innerHTML = "";
-
-            queue.forEach((p, index) => {
-                body.innerHTML += `
+<div class="section">
+    <h3>Current Queue</h3>
+    <table width="100%">
+        <thead>
             <tr>
-                <td>${p.token}</td>
-                <td>${p.name}</td>
-                <td>${p.method}</td>
-                <td>
-                    ${p.method === "Online"
-                        ? `<button class="cancel" onclick="cancelBooking(${index})">Cancel</button>`
-                        : ``}
-                </td>
+                <th>Token</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Timer</th>
+                <th>Action</th>
             </tr>
-        `;
-            });
-        }
+        </thead>
+        <tbody id="queueBody"></tbody>
+    </table>
+</div>
 
-        function book() {
+<script>
 
-            const onlineCount = queue.filter(p => p.method === "Online").length;
+let queue = JSON.parse(localStorage.getItem("queue")) || [];
+let myBookings = JSON.parse(localStorage.getItem("myBookings")) || [];
+let gapTime = 5;
+let startTime = null;
 
-            if (onlineCount >= 3) {
-                alert("Maximum number of tokens reached for online bookings.");
-                return;
-            }
+// TOKEN UPDATE
+function updateTokens() {
+    queue.forEach((p, i) => {
+        p.token = i + 1;
+        p.status = i === 0 ? "next" : "waiting";
+    });
+}
 
-            const name = document.getElementById("name").value;
-            const age = document.getElementById("age").value;
+// TIMER LOGIC (same as admin)
+function getRemainingTime(index) {
+    if (!startTime) return (index + 1) * gapTime * 60;
 
-            if (!name || !age) return;
+    let elapsed = Math.floor((Date.now() - startTime) / 1000);
+    let total = (index + 1) * gapTime * 60;
 
-            queue.push({
-                name,
-                age,
-                method: "Online"
-            });
+    return Math.max(total - elapsed, 0);
+}
 
-            render();
-        }
+// FORMAT TIME
+function formatTime(sec) {
+    let m = Math.floor(sec / 60);
+    let s = sec % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+}
 
-        function cancelBooking(index) {
-            queue.splice(index, 1);
-            render();
-        }
+// RENDER
+function render() {
+    updateTokens();
+    localStorage.setItem("queue", JSON.stringify(queue));
 
-        function showQR() {
-            document.getElementById("qrModal").style.display = "flex";
-            document.getElementById("qrImage").innerHTML = "";
+    const body = document.getElementById("queueBody");
+    body.innerHTML = "";
 
-            new QRCode("qrImage", {
-                text: window.location.href,
-                width: 200,
-                height: 200
-            });
-        }
+    queue.forEach((p, i) => {
 
-        function closeQR() {
-            document.getElementById("qrModal").style.display = "none";
-        }
+        let isMine = myBookings.includes(p.name);
 
-        render();
+        body.innerHTML += `
+        <tr class="${isMine ? 'highlight' : ''}">
+            <td>${p.token}</td>
+            <td>${p.name}</td>
+            <td>${p.status}</td>
+            <td>${formatTime(getRemainingTime(i))}</td>
+            <td>
+                ${isMine ? `<button class="cancel" onclick="cancelBooking(${i})">Cancel</button>` : ""}
+            </td>
+        </tr>`;
+    });
 
-    </script>
+    updateMyStatus();
+}
+
+// BOOKING
+function book() {
+
+    if (myBookings.length >= 3) {
+        alert("Max 3 bookings allowed");
+        return;
+    }
+
+    const name = document.getElementById("name").value;
+    const age = document.getElementById("age").value;
+
+    if (!name || !age) return;
+
+    queue.push({
+        name,
+        age,
+        method: "Online",
+        status: "waiting"
+    });
+
+    myBookings.push(name);
+
+    localStorage.setItem("myBookings", JSON.stringify(myBookings));
+
+    render();
+}
+
+// CANCEL
+function cancelBooking(i) {
+    myBookings = myBookings.filter(n => n !== queue[i].name);
+    localStorage.setItem("myBookings", JSON.stringify(myBookings));
+
+    queue.splice(i, 1);
+    render();
+}
+
+// SHOW USER STATUS
+function updateMyStatus() {
+    const my = queue.find(p => myBookings.includes(p.name));
+
+    if (!my) {
+        document.getElementById("myStatus").innerText = "Not booked";
+        return;
+    }
+
+    document.getElementById("myStatus").innerText =
+        `Token ${my.token} | Status: ${my.status}`;
+}
+
+// AUTO REFRESH TIMER
+setInterval(render, 1000);
+
+render();
+
+</script>
 
 </body>
-
 </html>
