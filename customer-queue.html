@@ -1,61 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Queue Status</title>
+<meta charset="UTF-8">
+<title>Queue Status</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+<style>
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
-        body {
-            background: #f4f7fb;
-            padding: 40px;
-        }
+body { background: #f4f7fb; padding: 40px; }
 
-        .section {
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-        }
+.section {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    margin-bottom: 25px;
+}
 
-        input {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            margin-right: 10px;
-        }
+input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+}
 
-        button {
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            background: #1e88e5;
-            color: white;
-            cursor: pointer;
-        }
+button {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #1e88e5;
+    color: white;
+    cursor: pointer;
+}
 
-        .cancel {
-            background: #ffebee;
-            color: #e53935;
-        }
+.cancel { background: #ffebee; color: #e53935; }
+.highlight { background: #e3f2fd; font-weight: bold; }
 
-        .highlight {
-            background: #e3f2fd;
-            font-weight: bold;
-        }
-    </style>
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.qr-btn {
+    background: #0f766e;
+    color: white;
+    font-weight: 600;
+}
+
+.qr-popup {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 280px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+    padding: 20px;
+    display: none;
+    z-index: 1000;
+}
+
+.qr-popup.open {
+    display: block;
+}
+
+.qr-popup h3 {
+    margin-bottom: 8px;
+}
+
+.qr-popup p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 14px;
+}
+
+.qr-box {
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 14px;
+    min-height: 220px;
+    align-items: center;
+}
+
+.close-qr {
+    margin-top: 14px;
+    width: 100%;
+    background: #e2e8f0;
+    color: #1e293b;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Queue Status</h1>
+<div class="topbar">
+    <h1 id="pageTitle">Queue Status</h1>
+    <button class="qr-btn" onclick="toggleQrPopup()">Show QR</button>
+</div>
+
+<div class="qr-popup" id="qrPopup">
+    <h3 id="qrBusinessName">Business QR</h3>
+    <p>Scan this to open the business queue page directly.</p>
+    <div class="qr-box" id="businessQrBox"></div>
+    <button class="close-qr" onclick="toggleQrPopup(false)">Close</button>
+</div>
 
 <div class="section">
     <h3>Book Token (Max 3)</h3><br>
@@ -73,79 +126,107 @@
     <h3>Current Queue</h3>
     <table width="100%">
         <thead>
-            <tr>
-                <th>Token</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Timer</th>
-                <th>Action</th>
-            </tr>
+        <tr>
+            <th>Token</th>
+            <th>Name</th>
+            <th>Timer</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
         </thead>
         <tbody id="queueBody"></tbody>
     </table>
 </div>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
 <script>
 
-let queue = JSON.parse(localStorage.getItem("queue")) || [];
+document.addEventListener("DOMContentLoaded", function () {
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDoR1prWqpE5NwAAAIkHIeac3W2Ry5DiTU",
+  authDomain: "smart-queue-d7fe5.firebaseapp.com",
+  databaseURL: "https://smart-queue-d7fe5-default-rtdb.firebaseio.com",
+  projectId: "smart-queue-d7fe5"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const db = firebase.database();
+const queueRef = db.ref("queues/kadai");
+const metaRef = db.ref("queues/kadai_meta");
+
+const businesses = JSON.parse(localStorage.getItem("businesses")) || [];
+const params = new URLSearchParams(window.location.search);
+const selectedBusinessId = params.get("business") || localStorage.getItem("customerBusinessId");
+const selectedBusiness = businesses.find(biz => String(biz.id) === String(selectedBusinessId)) || null;
+
 let myBookings = JSON.parse(localStorage.getItem("myBookings")) || [];
+let currentQueue = [];
 let gapTime = 5;
 let startTime = null;
+let qrRendered = false;
 
-// TOKEN UPDATE
-function updateTokens() {
-    queue.forEach((p, i) => {
-        p.token = i + 1;
-        p.status = i === 0 ? "next" : "waiting";
-    });
+if (selectedBusinessId) {
+    localStorage.setItem("customerBusinessId", selectedBusinessId);
 }
 
-// TIMER LOGIC (same as admin)
-function getRemainingTime(index) {
-    if (!startTime) return (index + 1) * gapTime * 60;
-
-    let elapsed = Math.floor((Date.now() - startTime) / 1000);
-    let total = (index + 1) * gapTime * 60;
-
-    return Math.max(total - elapsed, 0);
+if (selectedBusiness) {
+    document.getElementById("pageTitle").innerText = `${selectedBusiness.name} Queue`;
+    document.getElementById("qrBusinessName").innerText = `${selectedBusiness.name} QR`;
 }
 
-// FORMAT TIME
-function formatTime(sec) {
-    let m = Math.floor(sec / 60);
-    let s = sec % 60;
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
-}
+/* LIVE QUEUE */
+queueRef.on("value", snapshot => {
+    const data = snapshot.val() || {};
 
-// RENDER
-function render() {
-    updateTokens();
-    localStorage.setItem("queue", JSON.stringify(queue));
+    currentQueue = Object.keys(data).map(id => ({ id, ...data[id] }));
+    currentQueue.sort((a, b) => (a.token || 0) - (b.token || 0));
 
+    myBookings = myBookings.filter(id => currentQueue.some(q => q.id === id));
+    localStorage.setItem("myBookings", JSON.stringify(myBookings));
+
+    render(currentQueue);
+});
+
+metaRef.on("value", snapshot => {
+    const data = snapshot.val() || {};
+    startTime = data.startTime || null;
+    gapTime = data.gapTime || 5;
+    render(currentQueue);
+});
+
+/* RENDER */
+function render(queue) {
     const body = document.getElementById("queueBody");
     body.innerHTML = "";
 
     queue.forEach((p, i) => {
-
-        let isMine = myBookings.includes(p.name);
+        const isMine = myBookings.includes(p.id);
 
         body.innerHTML += `
         <tr class="${isMine ? 'highlight' : ''}">
-            <td>${p.token}</td>
+            <td>${p.token || i + 1}</td>
             <td>${p.name}</td>
-            <td>${p.status}</td>
             <td>${formatTime(getRemainingTime(i))}</td>
+            <td>${i === 0 ? "next" : "waiting"}</td>
             <td>
-                ${isMine ? `<button class="cancel" onclick="cancelBooking(${i})">Cancel</button>` : ""}
+                ${isMine ? `<button class="cancel" onclick="cancelBooking('${p.id}')">Cancel</button>` : ""}
             </td>
         </tr>`;
     });
 
-    updateMyStatus();
+    updateMyStatus(queue);
 }
 
-// BOOKING
-function book() {
+/* BOOK */
+window.book = function () {
 
     if (myBookings.length >= 3) {
         alert("Max 3 bookings allowed");
@@ -155,49 +236,105 @@ function book() {
     const name = document.getElementById("name").value;
     const age = document.getElementById("age").value;
 
-    if (!name || !age) return;
-
-    queue.push({
-        name,
-        age,
-        method: "Online",
-        status: "waiting"
-    });
-
-    myBookings.push(name);
-
-    localStorage.setItem("myBookings", JSON.stringify(myBookings));
-
-    render();
-}
-
-// CANCEL
-function cancelBooking(i) {
-    myBookings = myBookings.filter(n => n !== queue[i].name);
-    localStorage.setItem("myBookings", JSON.stringify(myBookings));
-
-    queue.splice(i, 1);
-    render();
-}
-
-// SHOW USER STATUS
-function updateMyStatus() {
-    const my = queue.find(p => myBookings.includes(p.name));
-
-    if (!my) {
-        document.getElementById("myStatus").innerText = "Not booked";
+    if (!name || !age) {
+        alert("Enter details");
         return;
     }
 
-    document.getElementById("myStatus").innerText =
-        `Token ${my.token} | Status: ${my.status}`;
+    const newRef = queueRef.push();
+
+    newRef.set({
+        name,
+        age,
+        method: "Online",
+        token: currentQueue.length + 1,
+        time: Date.now()
+    });
+
+    myBookings.push(newRef.key);
+    localStorage.setItem("myBookings", JSON.stringify(myBookings));
+};
+
+/* CANCEL */
+window.cancelBooking = function (id) {
+    queueRef.child(id).remove();
+
+    myBookings = myBookings.filter(x => x !== id);
+    localStorage.setItem("myBookings", JSON.stringify(myBookings));
+};
+
+/* STATUS */
+function updateMyStatus(queue) {
+    const my = queue.find(p => myBookings.includes(p.id));
+
+    const el = document.getElementById("myStatus");
+
+    if (!my) {
+        el.innerText = "Not booked";
+        return;
+    }
+
+    const index = queue.indexOf(my);
+    el.innerText = `Token ${my.token || index + 1} | ${formatTime(getRemainingTime(index))}`;
 }
 
-// AUTO REFRESH TIMER
-setInterval(render, 1000);
+function getRemainingTime(index) {
+    if (!startTime) return (index + 1) * gapTime * 60;
 
-render();
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const total = (index + 1) * gapTime * 60;
 
+    return Math.max(total - elapsed, 0);
+}
+
+function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+}
+
+setInterval(() => {
+    render(currentQueue);
+}, 1000);
+
+window.toggleQrPopup = function (forceOpen) {
+    const popup = document.getElementById("qrPopup");
+    const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : !popup.classList.contains("open");
+
+    popup.classList.toggle("open", shouldOpen);
+
+    if (shouldOpen) {
+        renderBusinessQr();
+    }
+};
+
+function renderBusinessQr() {
+    const qrBox = document.getElementById("businessQrBox");
+
+    if (!selectedBusinessId) {
+        qrBox.innerHTML = "<p>No business selected.</p>";
+        return;
+    }
+
+    if (qrRendered) return;
+
+    const qrLink = buildBusinessQrLink();
+    qrBox.innerHTML = "";
+
+    new QRCode(qrBox, {
+        text: qrLink,
+        width: 200,
+        height: 200
+    });
+
+    qrRendered = true;
+}
+
+function buildBusinessQrLink() {
+    return window.location.origin + "/customer-queue.html?business=" + selectedBusinessId;
+}
+
+});
 </script>
 
 </body>

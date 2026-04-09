@@ -57,7 +57,24 @@
 
     <div class="grid" id="businessGrid"></div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <script>
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDoR1prWqpE5NwAAAIkHIeac3W2Ry5DiTU",
+            authDomain: "smart-queue-d7fe5.firebaseapp.com",
+            databaseURL: "https://smart-queue-d7fe5-default-rtdb.firebaseio.com",
+            projectId: "smart-queue-d7fe5"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.database();
+        const queueRef = db.ref("queues/kadai");
 
         const businesses = JSON.parse(localStorage.getItem("businesses")) || [];
         const grid = document.getElementById("businessGrid");
@@ -66,18 +83,27 @@
             grid.innerHTML = "<p>No businesses available.</p>";
         }
 
-        businesses.forEach(biz => {
-            const queue = JSON.parse(localStorage.getItem("queue_" + biz.id)) || [];
+        function renderBusinesses(queueCount) {
+            if (businesses.length === 0) return;
 
-            grid.innerHTML += `
-        <div class="card" onclick="openQueue('${biz.id}')">
-            <h3>${biz.name}</h3>
-            <p>${biz.type}</p>
-            <div class="queue-info">
-                People in Queue: ${queue.length}
+            grid.innerHTML = "";
+
+            businesses.forEach(biz => {
+                grid.innerHTML += `
+            <div class="card" onclick="openQueue('${biz.id}')">
+                <h3>${biz.name}</h3>
+                <p>${biz.type}</p>
+                <div class="queue-info">
+                    People in Queue: ${queueCount}
+                </div>
             </div>
-        </div>
-    `;
+        `;
+            });
+        }
+
+        queueRef.on("value", snapshot => {
+            const data = snapshot.val() || {};
+            renderBusinesses(Object.keys(data).length);
         });
 
         function openQueue(id) {
