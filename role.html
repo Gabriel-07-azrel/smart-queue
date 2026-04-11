@@ -4,183 +4,315 @@
 <head>
     <meta charset="UTF-8">
     <title>Select Role | Smart Queue Companion</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
         }
 
         body {
-            height: 100vh;
-            background: #ffffff;
-            overflow: hidden;
-        }
-
-        /* Background dots */
-        .background {
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background-image:
-                radial-gradient(#1e88e5 1px, transparent 1px),
-                radial-gradient(#e53935 1px, transparent 1px);
-            background-size: 60px 60px;
-            background-position: 0 0, 30px 30px;
-            opacity: 0.12;
-            animation: drift 40s linear infinite;
-        }
-
-        @keyframes drift {
-            to {
-                transform: translate(-300px, -300px);
-            }
-        }
-
-        .content {
-            position: relative;
-            z-index: 1;
-            height: 100vh;
-            padding: 80px 120px;
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            overflow: hidden;
+            background: #0b1a3b;
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background:
+                url('https://c8.alamy.com/comp/1990478519/mix-race-people-standing-in-queue-line-waiting-for-service-man-holding-smartphone-with-qr-code-and-number-on-screen-digital-queue-management-system-1990478519.jpg')
+                center / cover no-repeat;
+            filter: brightness(0.38) saturate(0.7);
+            z-index: 0;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(11,26,59,0.80) 0%, rgba(30,60,120,0.50) 100%);
+            z-index: 1;
+        }
+
+        .scene {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 860px;
+            padding: 2.5rem 2rem;
+            animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2.8rem;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.13);
+            border: 1px solid rgba(255,255,255,0.22);
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
 
-        h1 {
-            font-size: 38px;
+        .brand-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
             font-weight: 700;
-            margin-bottom: 10px;
+            color: white;
+            letter-spacing: 0.03em;
         }
 
-        p {
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 50px;
-            max-width: 520px;
+        .brand-name span { color: #7eb8f7; }
+
+        .header {
+            margin-bottom: 2.5rem;
+        }
+
+        .divider {
+            width: 36px;
+            height: 2px;
+            background: #7eb8f7;
+            border-radius: 2px;
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 300;
+            max-width: 480px;
+            line-height: 1.7;
         }
 
         .roles {
-            display: flex;
-            gap: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
         }
 
         .card {
-            flex: 1;
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 22px;
+            padding: 2rem 1.8rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: left;
+            transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
         }
 
         .card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+            background: rgba(255,255,255,0.13);
         }
 
-        .card.admin {
-            border-top: 4px solid #1e88e5;
+        .card.admin:hover { border-color: rgba(126,184,247,0.5); }
+        .card.customer:hover { border-color: rgba(94,214,195,0.5); }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.4rem;
         }
 
-        .card.customer {
-            border-top: 4px solid #26c6da;
+        .card.admin .card-icon {
+            background: rgba(126,184,247,0.15);
+            border: 1px solid rgba(126,184,247,0.25);
+        }
+
+        .card.customer .card-icon {
+            background: rgba(94,214,195,0.15);
+            border: 1px solid rgba(94,214,195,0.25);
         }
 
         .card h2 {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 12px;
+            color: #ffffff;
+            margin-bottom: 10px;
         }
 
         .card p {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+            font-weight: 300;
+            flex: 1;
+            margin-bottom: 1.6rem;
         }
 
-        .card button {
-            margin-top: 20px;
-            padding: 12px 26px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 8px;
+        .card-features {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-bottom: 1.8rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.55);
+        }
+
+        .feature-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .card.admin .feature-dot { background: #7eb8f7; }
+        .card.customer .feature-dot { background: #5ed6c3; }
+
+        .card-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
             border: none;
-            background: #1e88e5;
-            color: white;
+            font-family: 'Sora', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
+            transition: opacity 0.2s, transform 0.15s;
+            letter-spacing: 0.02em;
         }
 
-        .card.customer button {
-            background: #26c6da;
+        .card-btn:active { transform: scale(0.98); }
+        .card-btn:hover { opacity: 0.88; }
+
+        .card.admin .card-btn {
+            background: #7eb8f7;
+            color: #0b1a3b;
         }
 
-        .card button:hover {
-            opacity: 0.9;
+        .card.customer .card-btn {
+            background: #5ed6c3;
+            color: #0b1a3b;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 1.8rem;
+            font-size: 12px;
+            color: rgba(255,255,255,0.28);
+        }
+
+        @media (max-width: 600px) {
+            .roles { grid-template-columns: 1fr; }
+            .header h1 { font-size: 24px; }
         }
     </style>
 </head>
 
 <body>
+    <div class="bg"></div>
+    <div class="bg-overlay"></div>
 
-    <div class="background"></div>
+    <div class="scene">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    <path d="M14 17h3v3"/><path d="M17 14h3"/>
+                </svg>
+            </div>
+            <span class="brand-name">Smart<span>Queue</span></span>
+        </div>
 
-    <div class="content">
-        <h1>Choose Your Role</h1>
-        <p>
-            Select how you want to use Smart Queue Companion.
-            You can manage queues as an admin or book tokens as a customer.
-        </p>
+        <div class="header">
+            <div class="divider"></div>
+            <h1>Choose your role</h1>
+            <p>Select how you want to use Smart Queue Companion — manage queues as an admin or book tokens as a customer.</p>
+        </div>
 
         <div class="roles">
+
             <!-- Admin card -->
             <div class="card admin">
+                <div class="card-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7eb8f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
                 <h2>Admin</h2>
-                <p>
-                    Register your shop or clinic, generate QR codes,
-                    manage queues, and control customer flow digitally.
-                </p>
-                <button onclick="goToAdmin()">
-                    Continue as Admin
-                </button>
+                <p>Register your shop or clinic, generate QR codes, manage queues, and control customer flow digitally.</p>
+                <div class="card-features">
+                    <div class="feature"><div class="feature-dot"></div>Register & manage businesses</div>
+                    <div class="feature"><div class="feature-dot"></div>Generate QR codes</div>
+                    <div class="feature"><div class="feature-dot"></div>Real-time queue control</div>
+                </div>
+                <button class="card-btn" onclick="goToAdmin()">Continue as Admin →</button>
             </div>
 
             <!-- Customer card -->
             <div class="card customer">
+                <div class="card-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5ed6c3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                    </svg>
+                </div>
                 <h2>Customer</h2>
-                <p>
-                    Browse nearby shops or clinics, check queue status,
-                    book tokens online, and get notified before your turn.
-                </p>
-                <button onclick="location.href='customer-home.html'">
-                    Continue as Customer
-                </button>
+                <p>Browse nearby shops or clinics, check queue status, book tokens online, and get notified before your turn.</p>
+                <div class="card-features">
+                    <div class="feature"><div class="feature-dot"></div>Browse nearby queues</div>
+                    <div class="feature"><div class="feature-dot"></div>Book tokens online</div>
+                    <div class="feature"><div class="feature-dot"></div>Get turn notifications</div>
+                </div>
+                <button class="card-btn" onclick="location.href='customer-home.html'">Continue as Customer →</button>
             </div>
+
         </div>
+
+        <p class="footer-note">Smart Queue Companion &mdash; Powered by QueueFlow</p>
     </div>
 
-    <!-- SMART ADMIN REDIRECTION LOGIC -->
     <script>
         function goToAdmin() {
             const businesses = JSON.parse(localStorage.getItem("businesses")) || [];
-
             if (businesses.length > 0) {
-                // Existing admin → go directly to portal
                 window.location.href = "admin-portal.html";
             } else {
-                // New admin or all businesses deleted
                 window.location.href = "admin-details.html";
             }
         }
     </script>
-
 </body>
-
 </html>

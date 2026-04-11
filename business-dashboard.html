@@ -2,101 +2,492 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Business Dashboard</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
+<title>Business Dashboard | Smart Queue Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-body { background: #f4f7fb; padding: 30px; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-.counter { background: #1e88e5; color: white; padding: 10px 20px; border-radius: 30px; }
-
-.section { background: white; padding: 25px; border-radius: 16px; margin-bottom: 25px; }
-
-input, select {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-right: 10px;
+body {
+    min-height: 100vh;
+    font-family: 'Sora', sans-serif;
+    background: #0b1a3b;
+    color: white;
 }
 
+.bg {
+    position: fixed;
+    inset: 0;
+    background: url('https://c8.alamy.com/comp/1990478519/mix-race-people-standing-in-queue-line-waiting-for-service-man-holding-smartphone-with-qr-code-and-number-on-screen-digital-queue-management-system-1990478519.jpg') center / cover no-repeat;
+    filter: brightness(0.18) saturate(0.5);
+    z-index: 0;
+}
+
+.bg-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(11,26,59,0.96) 0%, rgba(30,60,120,0.70) 100%);
+    z-index: 1;
+}
+
+/* HEADER */
+.header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    background: rgba(11,26,59,0.65);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+}
+
+.brand-name span { color: #7eb8f7; }
+
+.brand-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 300;
+    margin-left: 2px;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(126,184,247,0.1);
+    border: 1px solid rgba(126,184,247,0.2);
+    color: #7eb8f7;
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.counter-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7eb8f7;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* LAYOUT */
+.main {
+    position: relative;
+    z-index: 2;
+    padding: 28px 40px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* PANEL */
+.panel { display: flex; flex-direction: column; gap: 18px; }
+
+.section {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 20px;
+    border-radius: 18px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: border-color 0.25s;
+}
+
+.section:hover { border-color: rgba(126,184,247,0.25); }
+
+.section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title::before {
+    content: '';
+    width: 3px;
+    height: 12px;
+    background: linear-gradient(#7eb8f7, #5ed6c3);
+    border-radius: 2px;
+}
+
+/* INPUTS */
+input, select {
+    width: 100%;
+    padding: 10px 13px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    outline: none;
+    margin-bottom: 9px;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+}
+
+input::placeholder { color: rgba(255,255,255,0.22); }
+select option { background: #132040; color: white; }
+
+input:focus, select:focus {
+    border-color: rgba(126,184,247,0.4);
+    background: rgba(126,184,247,0.07);
+}
+
+/* BUTTONS */
 button {
-    padding: 10px 18px;
+    padding: 10px 14px;
     border: none;
-    border-radius: 8px;
+    border-radius: 9px;
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    letter-spacing: 0.02em;
 }
 
-.add { background: #1e88e5; color: white; }
-.cancel { background: #ffebee; color: #e53935; }
-.complete { background: #e8f5e9; color: #2e7d32; }
+button:active { transform: scale(0.97); }
+
+.btn-primary {
+    background: #7eb8f7;
+    color: #0b1a3b;
+    width: 100%;
+    padding: 11px;
+}
+
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-secondary {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    flex: 1;
+}
+
+.btn-secondary:hover { opacity: 0.8; }
+
+.btn-inline-group { display: flex; gap: 8px; }
+
+.btn-gap {
+    background: rgba(126,184,247,0.1);
+    border: 1px solid rgba(126,184,247,0.2);
+    color: #7eb8f7;
+    flex: 1;
+}
+
+.btn-start {
+    background: rgba(94,214,195,0.1);
+    border: 1px solid rgba(94,214,195,0.2);
+    color: #5ed6c3;
+    flex: 1;
+}
+
+.btn-reset {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.4);
+    flex: 1;
+}
+
+.btn-gap:hover, .btn-start:hover, .btn-reset:hover { opacity: 0.8; }
+
+/* SEARCH ROW */
+.search-row { display: flex; gap: 8px; align-items: flex-start; }
+.search-row input { margin: 0; flex: 1; }
+.search-row select { margin: 0; width: 90px; }
+
+/* QUEUE TABLE */
+.queue-section {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.queue-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.queue-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.queue-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    font-weight: 300;
+}
+
+.queue-status::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #5ed6c3;
+    animation: pulse 2s infinite;
+}
 
 table {
     width: 100%;
-    margin-top: 15px;
     border-collapse: collapse;
+    font-size: 13px;
 }
 
-th, td {
-    padding: 12px;
+thead tr {
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+thead th {
+    padding: 12px 24px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.2s;
+}
+
+tbody tr:hover { background: rgba(255,255,255,0.04); }
+tbody tr:last-child { border-bottom: none; }
+
+tbody td {
+    padding: 13px 24px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 300;
+    vertical-align: middle;
+}
+
+.token-badge {
+    background: rgba(126,184,247,0.12);
+    border: 1px solid rgba(126,184,247,0.2);
+    color: #7eb8f7;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 7px;
+    display: inline-block;
+}
+
+.method-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 100px;
+}
+
+.method-online {
+    background: rgba(94,214,195,0.1);
+    border: 1px solid rgba(94,214,195,0.2);
+    color: #5ed6c3;
+}
+
+.method-physical {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.5);
+}
+
+.status-next {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7eb8f7;
+    background: rgba(126,184,247,0.1);
+    border: 1px solid rgba(126,184,247,0.2);
+    padding: 4px 10px;
+    border-radius: 100px;
+}
+
+.status-waiting {
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.3);
+}
+
+.timer-cell {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: #5ed6c3;
+    font-size: 13px;
+}
+
+.action-group { display: flex; gap: 7px; }
+
+.cancel {
+    background: rgba(255,100,100,0.08);
+    border: 1px solid rgba(255,100,100,0.18);
+    color: rgba(255,120,120,0.85);
+    padding: 5px 11px;
+    font-size: 11px;
+}
+
+.complete {
+    background: rgba(94,214,195,0.08);
+    border: 1px solid rgba(94,214,195,0.18);
+    color: #5ed6c3;
+    padding: 5px 11px;
+    font-size: 11px;
+}
+
+.cancel:hover { opacity: 0.8; }
+.complete:hover { opacity: 0.8; }
+
+.empty-row td {
     text-align: center;
-    border-bottom: 1px solid #eee;
+    padding: 60px;
+    color: rgba(255,255,255,0.25);
+    font-size: 13px;
+    font-weight: 300;
 }
 
-th { background: #f1f3f6; }
+@media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; padding: 20px; }
+    .header { padding: 16px 20px; }
+}
 </style>
 </head>
-
 <body>
 
+<div class="bg"></div>
+<div class="bg-overlay"></div>
+
 <div class="header">
-    <h1>Business Queue Dashboard</h1>
-    <div class="counter" id="totalCount">Total: 0</div>
+    <div class="header-left">
+        <div class="brand-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                <path d="M14 17h3v3"/><path d="M17 14h3"/>
+            </svg>
+        </div>
+        <div>
+            <div class="brand-name">Smart<span>Queue</span></div>
+            <div class="brand-sub">Queue Dashboard</div>
+        </div>
+    </div>
+    <div class="counter">
+        <div class="counter-dot"></div>
+        <span id="totalCount">0 in queue</span>
+    </div>
 </div>
 
-<div class="section">
-    <input type="text" id="searchInput" placeholder="Search...">
-    <select id="searchType">
-        <option value="name">Name</option>
-        <option value="token">Token</option>
-    </select>
-    <button onclick="searchQueue()">Search</button>
-    <button onclick="renderQueue()">Reset</button>
-</div>
+<div class="main">
 
-<div class="section">
-    <h3>Queue Settings</h3><br>
-    <input type="number" id="gapInput" placeholder="Gap (minutes)">
-    <button onclick="setGap()">Set Gap</button>
-    <button onclick="startTimer()">Start Timer</button>
-</div>
+    <!-- LEFT PANEL -->
+    <div class="panel">
 
-<div class="section">
-    <h3>Add Booking</h3><br>
-    <input type="text" id="pName" placeholder="Customer Name">
-    <input type="number" id="pAge" placeholder="Age">
-    <button class="add" onclick="addPhysical()">Add</button>
-</div>
+        <!-- SEARCH -->
+        <div class="section">
+            <div class="section-title">Search</div>
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="Search...">
+                <select id="searchType">
+                    <option value="name">Name</option>
+                    <option value="token">Token</option>
+                </select>
+            </div>
+            <div class="btn-inline-group" style="margin-top:4px">
+                <button class="btn-secondary" onclick="searchQueue()">Search</button>
+                <button class="btn-reset" onclick="renderQueue()">Reset</button>
+            </div>
+        </div>
 
-<div class="section">
-    <h3>Current Queue</h3>
-    <table>
-        <thead>
-        <tr>
-            <th>Token</th>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Method</th>
-            <th>Timer</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody id="queueBody"></tbody>
-    </table>
+        <!-- TIMER SETTINGS -->
+        <div class="section">
+            <div class="section-title">Queue Timer</div>
+            <input type="number" id="gapInput" placeholder="Gap in minutes (default 5)">
+            <div class="btn-inline-group">
+                <button class="btn-gap" onclick="setGap()">Set Gap</button>
+                <button class="btn-start" onclick="startTimer()">▶ Start</button>
+            </div>
+        </div>
+
+        <!-- ADD BOOKING -->
+        <div class="section">
+            <div class="section-title">Add Booking</div>
+            <input type="text" id="pName" placeholder="Customer Name">
+            <input type="number" id="pAge" placeholder="Age">
+            <button class="btn-primary" onclick="addPhysical()">+ Add to Queue</button>
+        </div>
+    </div>
+
+    <!-- QUEUE TABLE -->
+    <div class="queue-section">
+        <div class="queue-header">
+            <h3>Current Queue</h3>
+            <span class="queue-status">Live · updates automatically</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Method</th>
+                    <th>Timer</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="queueBody">
+                <tr class="empty-row"><td colspan="7">Queue is empty</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Firebase -->
@@ -104,7 +495,6 @@ th { background: #f1f3f6; }
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-
 const firebaseConfig = {
   apiKey: "AIzaSyDoR1prWqpE5NwAAAIkHIeac3W2Ry5DiTU",
   authDomain: "smart-queue-d7fe5.firebaseapp.com",
@@ -115,9 +505,7 @@ const firebaseConfig = {
   appId: "1:393220256164:web:a2e3edfcd698851a0ed131"
 };
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 const queueRef = db.ref("queues/kadai");
@@ -127,183 +515,140 @@ let queue = [];
 let gapTime = 5;
 let startTime = null;
 
-/* LIVE QUEUE */
 queueRef.on("value", snapshot => {
     const data = snapshot.val() || {};
     queue = Object.keys(data).map(id => ({ id, ...data[id] }));
-
     queue.sort((a, b) => (a.token || 0) - (b.token || 0));
     syncTokens();
-
-    // RESET TIMER IF EMPTY
-    if (queue.length === 0) {
-        startTime = null;
-        metaRef.remove();
-    }
-
+    if (queue.length === 0) { startTime = null; metaRef.remove(); }
     renderQueue();
 });
 
-/* TIMER SYNC */
 metaRef.on("value", snapshot => {
     const data = snapshot.val();
-    if (data) {
-        startTime = data.startTime;
-        gapTime = data.gapTime;
-    } else {
-        startTime = null;
-    }
+    if (data) { startTime = data.startTime; gapTime = data.gapTime; }
+    else startTime = null;
 });
 
-/* TOKEN UPDATE */
 function syncTokens() {
     queue.forEach((p, i) => {
         const nextToken = i + 1;
-        if (p.token !== nextToken) {
-            p.token = nextToken;
-            queueRef.child(p.id).update({ token: nextToken });
-        }
+        if (p.token !== nextToken) { p.token = nextToken; queueRef.child(p.id).update({ token: nextToken }); }
     });
 }
 
-/* TIMER */
 function getRemainingTime(index) {
     if (!startTime) return (index + 1) * gapTime * 60;
-
     let elapsed = Math.floor((Date.now() - startTime) / 1000);
     let total = (index + 1) * gapTime * 60;
-
     return Math.max(total - elapsed, 0);
 }
 
-/* SAFE AUTO REMOVE */
 function autoRemoveFirst() {
     if (queue.length === 0) return;
-
-    let remaining = getRemainingTime(0);
-
-    if (remaining === 0) {
-        let first = queue[0];
-        if (first) {
-            removeBooking(first.id);
-        }
-    }
+    if (getRemainingTime(0) === 0 && queue[0]) removeBooking(queue[0].id);
 }
 
-/* RENDER */
 function renderQueue() {
     const body = document.getElementById("queueBody");
     if (!body) return;
 
+    if (queue.length === 0) {
+        body.innerHTML = '<tr class="empty-row"><td colspan="7">Queue is empty · add a booking to get started</td></tr>';
+        document.getElementById("totalCount").innerText = "0 in queue";
+        return;
+    }
+
     body.innerHTML = "";
-
     queue.forEach((p, i) => {
-
-        let remaining = getRemainingTime(i);
-
+        const remaining = getRemainingTime(i);
+        const isOnline = p.method === "Online";
         body.innerHTML += `
         <tr>
-            <td>${p.token}</td>
+            <td><div class="token-badge">${p.token}</div></td>
             <td>${p.name}</td>
             <td>${p.age}</td>
-            <td>${p.method}</td>
-            <td>${formatTime(remaining)}</td>
-            <td>${i === 0 ? "next" : "waiting"}</td>
+            <td><span class="method-badge ${isOnline ? 'method-online' : 'method-physical'}">${p.method}</span></td>
+            <td class="timer-cell">${formatTime(remaining)}</td>
+            <td><span class="${i === 0 ? 'status-next' : 'status-waiting'}">${i === 0 ? '● Next' : 'Waiting'}</span></td>
             <td>
-                <button class="cancel" onclick="cancelBooking('${p.id}')">Cancel</button>
-                <button class="complete" onclick="completeBooking('${p.id}')">Complete</button>
+                <div class="action-group">
+                    <button class="cancel" onclick="cancelBooking('${p.id}')">Cancel</button>
+                    <button class="complete" onclick="completeBooking('${p.id}')">Done</button>
+                </div>
             </td>
         </tr>`;
     });
 
-    document.getElementById("totalCount").innerText = "Total: " + queue.length;
+    document.getElementById("totalCount").innerText = queue.length + " in queue";
 }
 
-/* ADD */
 function addPhysical() {
     const name = document.getElementById("pName").value;
     const age = document.getElementById("pAge").value;
-
     if (!name || !age) return;
-
-    queueRef.push({
-        name,
-        age,
-        method: "Physical",
-        token: queue.length + 1,
-        time: Date.now()
-    });
+    queueRef.push({ name, age, method: "Physical", token: queue.length + 1, time: Date.now() });
+    document.getElementById("pName").value = "";
+    document.getElementById("pAge").value = "";
 }
 
-/* REMOVE */
-function cancelBooking(id) {
-    removeBooking(id);
-}
-
-function completeBooking(id) {
-    removeBooking(id);
-}
+function cancelBooking(id) { removeBooking(id); }
+function completeBooking(id) { removeBooking(id); }
 
 function removeBooking(id) {
     const removedIndex = queue.findIndex(p => p.id === id);
     if (removedIndex === -1) return;
-
     queue = queue.filter(p => p.id !== id);
-    queue.forEach((p, i) => {
-        p.token = i + 1;
-    });
+    queue.forEach((p, i) => { p.token = i + 1; });
     renderQueue();
-
     queueRef.child(id).remove().then(() => {
-        const remainingCount = queue.length;
-
-        if (remainingCount <= 0) {
-            metaRef.remove();
-            return;
-        }
-
-        if (removedIndex === 0) {
-            metaRef.set({
-                startTime: Date.now(),
-                gapTime: gapTime
-            });
-        }
+        if (queue.length <= 0) { metaRef.remove(); return; }
+        if (removedIndex === 0) metaRef.set({ startTime: Date.now(), gapTime: gapTime });
     });
 }
 
-/* SETTINGS */
 function setGap() {
     const val = document.getElementById("gapInput").value;
     if (val > 0) gapTime = parseInt(val);
 }
 
-/* START TIMER */
 function startTimer() {
-    if (queue.length === 0) {
-        alert("No customers in queue");
-        return;
-    }
+    if (queue.length === 0) { alert("No customers in queue"); return; }
+    metaRef.set({ startTime: Date.now(), gapTime: gapTime });
+}
 
-    metaRef.set({
-        startTime: Date.now(),
-        gapTime: gapTime
+function searchQueue() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const type = document.getElementById("searchType").value;
+    const body = document.getElementById("queueBody");
+    body.innerHTML = "";
+    const filtered = queue.filter(p =>
+        type === "name" ? p.name.toLowerCase().includes(query) : String(p.token).includes(query)
+    );
+    filtered.forEach((p, i) => {
+        const remaining = getRemainingTime(queue.indexOf(p));
+        body.innerHTML += `<tr>
+            <td><div class="token-badge">${p.token}</div></td>
+            <td>${p.name}</td>
+            <td>${p.age}</td>
+            <td><span class="method-badge ${p.method === 'Online' ? 'method-online' : 'method-physical'}">${p.method}</span></td>
+            <td class="timer-cell">${formatTime(remaining)}</td>
+            <td><span class="status-waiting">—</span></td>
+            <td><div class="action-group">
+                <button class="cancel" onclick="cancelBooking('${p.id}')">Cancel</button>
+                <button class="complete" onclick="completeBooking('${p.id}')">Done</button>
+            </div></td>
+        </tr>`;
     });
 }
 
-/* FORMAT */
 function formatTime(sec) {
     let m = Math.floor(sec / 60);
     let s = sec % 60;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
-/* LOOP */
-setInterval(() => {
-    autoRemoveFirst();
-    renderQueue();
-}, 1000);
-
+setInterval(() => { autoRemoveFirst(); renderQueue(); }, 1000);
 </script>
-
 </body>
 </html>

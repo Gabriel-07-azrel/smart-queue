@@ -1,108 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Add Business | Smart Queue Companion</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: #f9fafb;
-            height: 100vh;
+            min-height: 100vh;
+            font-family: 'Sora', sans-serif;
+            background: #0b1a3b;
+            color: white;
+            overflow-x: hidden;
         }
 
+        .bg {
+            position: fixed;
+            inset: 0;
+            background: url('https://c8.alamy.com/comp/1990478519/mix-race-people-standing-in-queue-line-waiting-for-service-man-holding-smartphone-with-qr-code-and-number-on-screen-digital-queue-management-system-1990478519.jpg') center / cover no-repeat;
+            filter: brightness(0.25) saturate(0.5);
+            z-index: 0;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(11,26,59,0.92) 0%, rgba(30,60,120,0.60) 100%);
+            z-index: 1;
+        }
+
+        /* HEADER */
         .header {
-            padding: 20px 40px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 22px 48px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            background: rgba(11,26,59,0.6);
         }
 
-        .container {
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: rgba(255,255,255,0.13);
+            border: 1px solid rgba(255,255,255,0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.03em;
+        }
+
+        .brand-name span { color: #7eb8f7; }
+
+        .breadcrumb {
+            margin-left: auto;
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .breadcrumb span { color: #7eb8f7; }
+
+        /* LAYOUT */
+        .page {
+            position: relative;
+            z-index: 2;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            padding: 60px 120px;
+            gap: 80px;
+            align-items: center;
+            min-height: calc(100vh - 79px);
+            padding: 60px 80px;
+        }
+
+        /* INFO SIDE */
+        .info {
+            animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) both;
+        }
+
+        .info-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #5ed6c3;
+            background: rgba(94,214,195,0.1);
+            border: 1px solid rgba(94,214,195,0.2);
+            padding: 6px 13px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .info-tag::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #5ed6c3;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .info h2 {
-            font-size: 36px;
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.15;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .info h2 span { color: #7eb8f7; }
+
+        .info > p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.45);
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .divider {
+            width: 36px;
+            height: 2px;
+            background: #7eb8f7;
+            border-radius: 2px;
             margin-bottom: 12px;
         }
 
-        .info p {
-            color: #555;
-            line-height: 1.7;
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 300;
+        }
+
+        .feature-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #5ed6c3;
+            flex-shrink: 0;
+        }
+
+        /* FORM CARD */
         .card {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 22px;
+            padding: 2.2rem 2rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            animation: fadeUp 0.7s 0.1s cubic-bezier(.22,.68,0,1.2) both;
+        }
+
+        .card-title {
+            margin-bottom: 24px;
+        }
+
+        .card-title h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .card-title p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+            font-weight: 300;
+        }
+
+        .field-group {
+            margin-bottom: 16px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
         }
 
         .card input,
         .card select {
             width: 100%;
-            padding: 14px;
-            margin-bottom: 16px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+            padding: 13px 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            -webkit-appearance: none;
         }
 
-        .error {
-            border: 2px solid #e53935 !important;
+        .card input::placeholder { color: rgba(255,255,255,0.22); }
+        .card select option { background: #132040; color: white; }
+
+        .card input:focus,
+        .card select:focus {
+            background: rgba(126,184,247,0.08);
+            border-color: rgba(126,184,247,0.4);
         }
 
-        button {
+        .card input.error,
+        .card select.error {
+            border-color: rgba(255,100,100,0.5);
+            background: rgba(255,100,100,0.05);
+        }
+
+        .time-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .submit-btn {
             width: 100%;
-            padding: 14px;
-            background: #1e88e5;
-            color: white;
+            padding: 13px;
+            margin-top: 8px;
+            border-radius: 12px;
             border: none;
-            border-radius: 8px;
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            background: #7eb8f7;
+            color: #0b1a3b;
+            letter-spacing: 0.02em;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .submit-btn:hover { opacity: 0.88; }
+        .submit-btn:active { transform: scale(0.98); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            .page { grid-template-columns: 1fr; padding: 36px 24px; gap: 36px; }
+            .info h2 { font-size: 28px; }
+            .header { padding: 18px 24px; }
         }
     </style>
 </head>
-
 <body>
 
+    <div class="bg"></div>
+    <div class="bg-overlay"></div>
+
     <div class="header">
-        <h2>Add New Business</h2>
+        <div class="brand-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                <path d="M14 17h3v3"/><path d="M17 14h3"/>
+            </svg>
+        </div>
+        <span class="brand-name">Smart<span>Queue</span></span>
+        <div class="breadcrumb">Admin → <span>Add Business</span></div>
     </div>
 
-    <div class="container">
-
+    <div class="page">
         <div class="info">
-            <h2>Business Details</h2>
-            <p>Fill all details to generate a permanent QR for this business.</p>
+            <div class="info-tag">New Business</div>
+            <div class="divider"></div>
+            <h2>Business<br><span>Details</span></h2>
+            <p>Fill in the details below to register your business and generate a permanent QR code for your customers.</p>
+            <div class="features">
+                <div class="feature"><div class="feature-dot"></div>Permanent QR code generated instantly</div>
+                <div class="feature"><div class="feature-dot"></div>Real-time queue management</div>
+                <div class="feature"><div class="feature-dot"></div>Customers join from anywhere</div>
+            </div>
         </div>
 
         <div class="card">
-            <input id="name" placeholder="Business Name">
-            <select id="type">
-                <option value="">Select Type</option>
-                <option>Clinic</option>
-                <option>Shop</option>
-                <option>Bank</option>
-                <option>Restaurant</option>
-            </select>
-            <input id="location" placeholder="Location">
-            <input id="open" type="time">
-            <input id="close" type="time">
+            <div class="card-title">
+                <h3>Register Business</h3>
+                <p>All fields are required to proceed</p>
+            </div>
 
-            <button onclick="submitDetails()">Submit</button>
+            <div class="field-group">
+                <label class="field-label">Business Name</label>
+                <input id="name" placeholder="e.g. City Clinic">
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Business Type</label>
+                <select id="type">
+                    <option value="">Select Type</option>
+                    <option>Clinic</option>
+                    <option>Shop</option>
+                    <option>Bank</option>
+                    <option>Restaurant</option>
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Location</label>
+                <input id="location" placeholder="e.g. Anna Nagar, Chennai">
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Operating Hours</label>
+                <div class="time-grid">
+                    <input id="open" type="time">
+                    <input id="close" type="time">
+                </div>
+            </div>
+
+            <button class="submit-btn" onclick="submitDetails()">Generate QR Code →</button>
         </div>
     </div>
 
@@ -121,7 +364,7 @@
 
             if (!valid) return;
 
-            const businessId = Date.now(); // UNIQUE ID
+            const businessId = Date.now();
 
             localStorage.setItem("tempBusiness", JSON.stringify({
                 id: businessId,
@@ -132,7 +375,5 @@
             location.href = "admin-qr.html";
         }
     </script>
-
 </body>
-
 </html>

@@ -1,114 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>QR Generated | Smart Queue Companion</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: Inter, sans-serif;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            margin: 0;
-            height: 100vh;
-            background: #f9fafb;
+            min-height: 100vh;
+            font-family: 'Sora', sans-serif;
+            background: #0b1a3b;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 40px 24px;
+            overflow: hidden;
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background: url('https://c8.alamy.com/comp/1990478519/mix-race-people-standing-in-queue-line-waiting-for-service-man-holding-smartphone-with-qr-code-and-number-on-screen-digital-queue-management-system-1990478519.jpg') center / cover no-repeat;
+            filter: brightness(0.25) saturate(0.5);
+            z-index: 0;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(11,26,59,0.92) 0%, rgba(30,60,120,0.60) 100%);
+            z-index: 1;
         }
 
         .card {
-            background: white;
-            padding: 40px;
-            width: 420px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            position: relative;
+            z-index: 2;
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 22px;
+            padding: 2.5rem 2.2rem;
+            width: 100%;
+            max-width: 440px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             text-align: center;
+            animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) both;
         }
 
-        h2 {
-            margin-bottom: 10px;
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        p {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        #qrcode {
-            width: 220px;
-            height: 220px;
-            margin: 0 auto 20px;
+        .brand {
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 9px;
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: rgba(255,255,255,0.13);
+            border: 1px solid rgba(255,255,255,0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .brand-name span { color: #7eb8f7; }
+
+        .divider {
+            width: 36px;
+            height: 2px;
+            background: #7eb8f7;
+            border-radius: 2px;
+            margin: 0 auto 14px;
+        }
+
+        .card h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .card > p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.45);
+            font-weight: 300;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        /* QR FRAME */
+        .qr-frame {
+            background: white;
+            border-radius: 18px;
+            padding: 18px;
+            margin: 0 auto 28px;
+            width: fit-content;
+            border: 1px solid rgba(126,184,247,0.3);
+            box-shadow: 0 0 40px rgba(126,184,247,0.12);
+        }
+
+        #qrcode {
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #aaa;
+            font-size: 12px;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .qr-placeholder-icon { font-size: 40px; opacity: 0.3; }
+
+        /* BUTTONS */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            margin-top: 10px;
+            padding: 13px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
+            font-family: 'Sora', sans-serif;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
+            letter-spacing: 0.02em;
+            transition: opacity 0.2s, transform 0.15s;
         }
+
+        button:active { transform: scale(0.98); }
 
         .generate {
-            background: #1e88e5;
-            color: white;
+            background: #7eb8f7;
+            color: #0b1a3b;
         }
 
-        .generate:hover {
-            background: #1565c0;
-        }
+        .generate:hover { opacity: 0.88; }
 
         .download {
-            background: #1565c0;
-            color: white;
+            background: rgba(94,214,195,0.12);
+            border: 1px solid rgba(94,214,195,0.25);
+            color: #5ed6c3;
             display: none;
         }
 
-        .download:hover {
-            background: #0d47a1;
-        }
+        .download:hover { opacity: 0.88; }
 
         .next {
-            background: #e0e0e0;
-            color: #888;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.3);
             cursor: not-allowed;
         }
 
         .next.active {
-            background: #e3f2fd;
-            color: #1e88e5;
+            background: rgba(126,184,247,0.1);
+            border: 1px solid rgba(126,184,247,0.25);
+            color: #7eb8f7;
             cursor: pointer;
+        }
+
+        .next.active:hover { opacity: 0.88; }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 12px;
+            color: rgba(255,255,255,0.28);
         }
     </style>
 </head>
-
 <body>
 
+    <div class="bg"></div>
+    <div class="bg-overlay"></div>
+
     <div class="card">
-        <h2>Your Business QR</h2>
-        <p>Scan this QR to directly access the customer queue page</p>
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    <path d="M14 17h3v3"/><path d="M17 14h3"/>
+                </svg>
+            </div>
+            <span class="brand-name">Smart<span>Queue</span></span>
+        </div>
 
-        <div id="qrcode"></div>
+        <div class="divider"></div>
+        <h2>Business QR Code</h2>
+        <p>Scan this QR to directly access the customer queue page for this business.</p>
 
-        <button class="generate" onclick="generateQR()">Generate QR</button>
-        <button class="download" id="downloadBtn" onclick="downloadQR()">Download QR</button>
-        <button class="next" id="nextBtn" disabled onclick="goNext()">Next</button>
+        <div class="qr-frame">
+            <div id="qrcode">
+                <div class="qr-placeholder">
+                    <div class="qr-placeholder-icon">⬜</div>
+                    Generate to reveal QR
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="generate" onclick="generateQR()">⚡ Generate QR Code</button>
+            <button class="download" id="downloadBtn" onclick="downloadQR()">↓ Download QR</button>
+            <button class="next" id="nextBtn" disabled onclick="goNext()">Continue to Portal →</button>
+        </div>
     </div>
 
-    <script>
+    <p class="footer-note" style="position:relative;z-index:2;">Smart Queue Companion &mdash; Powered by QueueFlow</p>
 
+    <script>
         const business = JSON.parse(localStorage.getItem("tempBusiness"));
 
         if (!business) {
@@ -124,15 +256,9 @@
             const qrBox = document.getElementById("qrcode");
             qrBox.innerHTML = "";
 
-            // 🔥 LINK TO CUSTOMER QUEUE PAGE
-            const qrLink = window.location.origin +
-                "/customer-queue.html?business=" + business.id;
+            const qrLink = window.location.origin + "/customer-queue.html?business=" + business.id;
 
-            new QRCode(qrBox, {
-                text: qrLink,
-                width: 220,
-                height: 220
-            });
+            new QRCode(qrBox, { text: qrLink, width: 200, height: 200 });
 
             qrGenerated = true;
 
@@ -146,7 +272,6 @@
         function downloadQR() {
             const canvas = document.querySelector("#qrcode canvas");
             if (!canvas) return;
-
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
             link.download = business.name + "_QR.png";
@@ -155,19 +280,12 @@
 
         function goNext() {
             if (!qrGenerated) return;
-
             let businesses = JSON.parse(localStorage.getItem("businesses")) || [];
-
             businesses.push(business);
-
             localStorage.setItem("businesses", JSON.stringify(businesses));
             localStorage.removeItem("tempBusiness");
-
             window.location.href = "admin-portal.html";
         }
-
     </script>
-
 </body>
-
 </html>

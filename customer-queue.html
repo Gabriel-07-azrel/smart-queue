@@ -2,140 +2,525 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Queue Status</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
+<title>Queue Status | Smart Queue Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-body { background: #f4f7fb; padding: 40px; }
-
-.section {
-    background: white;
-    padding: 25px;
-    border-radius: 16px;
-    margin-bottom: 25px;
-}
-
-input {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-right: 10px;
-}
-
-button {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #1e88e5;
+body {
+    min-height: 100vh;
+    font-family: 'Sora', sans-serif;
+    background: #0b1a3b;
     color: white;
-    cursor: pointer;
 }
 
-.cancel { background: #ffebee; color: #e53935; }
-.highlight { background: #e3f2fd; font-weight: bold; }
+.bg {
+    position: fixed;
+    inset: 0;
+    background: url('https://c8.alamy.com/comp/1990478519/mix-race-people-standing-in-queue-line-waiting-for-service-man-holding-smartphone-with-qr-code-and-number-on-screen-digital-queue-management-system-1990478519.jpg') center / cover no-repeat;
+    filter: brightness(0.18) saturate(0.5);
+    z-index: 0;
+}
 
-.topbar {
+.bg-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(11,26,59,0.96) 0%, rgba(30,60,120,0.70) 100%);
+    z-index: 1;
+}
+
+/* HEADER */
+.header {
+    position: relative;
+    z-index: 10;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    padding: 18px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    background: rgba(11,26,59,0.65);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.brand-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+}
+
+.brand-name span { color: #7eb8f7; }
+
+.header-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 300;
 }
 
 .qr-btn {
-    background: #0f766e;
-    color: white;
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.13);
+    color: rgba(255,255,255,0.75);
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
 }
 
+.qr-btn:hover {
+    background: rgba(255,255,255,0.11);
+    border-color: rgba(255,255,255,0.2);
+}
+
+/* LAYOUT */
+.main {
+    position: relative;
+    z-index: 2;
+    padding: 28px 40px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* PANEL */
+.panel { display: flex; flex-direction: column; gap: 18px; }
+
+.section {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 20px;
+    border-radius: 18px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: border-color 0.25s;
+    animation: fadeUp 0.6s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+.section:hover { border-color: rgba(126,184,247,0.22); }
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title::before {
+    content: '';
+    width: 3px;
+    height: 12px;
+    background: linear-gradient(#7eb8f7, #5ed6c3);
+    border-radius: 2px;
+}
+
+/* MY STATUS CARD */
+.status-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.status-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(126,184,247,0.1);
+    border: 1px solid rgba(126,184,247,0.2);
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.status-text h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 3px;
+}
+
+.status-text p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.38);
+    font-weight: 300;
+}
+
+/* INPUTS */
+input {
+    width: 100%;
+    padding: 10px 13px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    outline: none;
+    margin-bottom: 9px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+input::placeholder { color: rgba(255,255,255,0.22); }
+
+input:focus {
+    border-color: rgba(126,184,247,0.4);
+    background: rgba(126,184,247,0.07);
+}
+
+.btn-book {
+    width: 100%;
+    padding: 12px;
+    background: #7eb8f7;
+    color: #0b1a3b;
+    border: none;
+    border-radius: 11px;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s, transform 0.15s;
+    margin-top: 4px;
+}
+
+.btn-book:hover { opacity: 0.88; }
+.btn-book:active { transform: scale(0.98); }
+
+/* QUEUE TABLE */
+.queue-section {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: fadeUp 0.6s 0.1s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+.queue-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.queue-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #5ed6c3;
+    background: rgba(94,214,195,0.1);
+    border: 1px solid rgba(94,214,195,0.18);
+    padding: 5px 12px;
+    border-radius: 100px;
+}
+
+.live-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #5ed6c3;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+thead tr { border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+th {
+    padding: 12px 24px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+td {
+    padding: 13px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.75);
+    font-weight: 300;
+    vertical-align: middle;
+}
+
+tr:last-child td { border-bottom: none; }
+
+.row-mine td { background: rgba(126,184,247,0.04); }
+.row-mine:hover td { background: rgba(126,184,247,0.07) !important; }
+tr:not(.row-mine):hover td { background: rgba(255,255,255,0.02); }
+
+.token-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: rgba(126,184,247,0.1);
+    border: 1px solid rgba(126,184,247,0.2);
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    color: #7eb8f7;
+}
+
+.token-mine {
+    background: rgba(126,184,247,0.2);
+    border-color: rgba(126,184,247,0.45);
+}
+
+.timer-cell {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: #5ed6c3;
+    font-size: 13px;
+}
+
+.status-next {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7eb8f7;
+    background: rgba(126,184,247,0.1);
+    border: 1px solid rgba(126,184,247,0.2);
+    padding: 4px 10px;
+    border-radius: 100px;
+}
+
+.status-waiting {
+    font-size: 11px;
+    color: rgba(255,255,255,0.28);
+    font-weight: 300;
+}
+
+.cancel-btn {
+    background: rgba(255,100,100,0.08);
+    border: 1px solid rgba(255,100,100,0.18);
+    color: rgba(255,120,120,0.85);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.cancel-btn:hover { opacity: 0.78; }
+
+.empty-row td {
+    text-align: center;
+    padding: 60px;
+    color: rgba(255,255,255,0.25);
+    font-size: 13px;
+    font-weight: 300;
+}
+
+/* QR POPUP */
 .qr-popup {
     position: fixed;
-    top: 24px;
-    right: 24px;
+    top: 72px;
+    right: 28px;
     width: 280px;
-    background: white;
-    border-radius: 18px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
-    padding: 20px;
+    background: rgba(11,26,59,0.97);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 20px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.55);
+    padding: 22px;
     display: none;
     z-index: 1000;
+    backdrop-filter: blur(30px);
+    animation: popIn 0.25s ease both;
 }
 
-.qr-popup.open {
-    display: block;
-}
+.qr-popup.open { display: block; }
 
 .qr-popup h3 {
-    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 5px;
 }
 
 .qr-popup p {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 14px;
+    color: rgba(255,255,255,0.38);
+    font-size: 12px;
+    font-weight: 300;
+    margin-bottom: 16px;
+    line-height: 1.6;
 }
 
 .qr-box {
+    background: white;
+    border-radius: 13px;
+    padding: 14px;
     display: flex;
     justify-content: center;
-    padding: 12px;
-    background: #f8fafc;
-    border-radius: 14px;
-    min-height: 220px;
     align-items: center;
+    min-height: 228px;
+    margin-bottom: 12px;
 }
 
 .close-qr {
-    margin-top: 14px;
     width: 100%;
-    background: #e2e8f0;
-    color: #1e293b;
+    padding: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6);
+    border-radius: 10px;
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.close-qr:hover { background: rgba(255,255,255,0.1); }
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; padding: 20px; }
+    .header { padding: 16px 20px; }
 }
 </style>
 </head>
-
 <body>
 
-<div class="topbar">
-    <h1 id="pageTitle">Queue Status</h1>
-    <button class="qr-btn" onclick="toggleQrPopup()">Show QR</button>
+<div class="bg"></div>
+<div class="bg-overlay"></div>
+
+<div class="header">
+    <div class="header-left">
+        <div class="brand-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                <path d="M14 17h3v3"/><path d="M17 14h3"/>
+            </svg>
+        </div>
+        <div>
+            <div class="brand-name" id="pageTitle">Smart<span>Queue</span></div>
+            <div class="header-sub">Live queue · updates in real time</div>
+        </div>
+    </div>
+    <button class="qr-btn" onclick="toggleQrPopup()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            <path d="M14 17h3v3"/><path d="M17 14h3"/>
+        </svg>
+        Show QR
+    </button>
 </div>
 
+<!-- QR POPUP -->
 <div class="qr-popup" id="qrPopup">
     <h3 id="qrBusinessName">Business QR</h3>
-    <p>Scan this to open the business queue page directly.</p>
+    <p>Scan this to open the queue page directly on any device.</p>
     <div class="qr-box" id="businessQrBox"></div>
-    <button class="close-qr" onclick="toggleQrPopup(false)">Close</button>
+    <button class="close-qr" onclick="toggleQrPopup(false)">✕ Close</button>
 </div>
 
-<div class="section">
-    <h3>Book Token (Max 3)</h3><br>
-    <input id="name" placeholder="Your Name">
-    <input id="age" type="number" placeholder="Age">
-    <button onclick="book()">Book</button>
-</div>
+<div class="main">
 
-<div class="section">
-    <h3>Your Status</h3>
-    <p id="myStatus">Not booked</p>
-</div>
+    <!-- LEFT PANEL -->
+    <div class="panel">
 
-<div class="section">
-    <h3>Current Queue</h3>
-    <table width="100%">
-        <thead>
-        <tr>
-            <th>Token</th>
-            <th>Name</th>
-            <th>Timer</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody id="queueBody"></tbody>
-    </table>
+        <!-- MY STATUS -->
+        <div class="section">
+            <div class="section-title">Your Status</div>
+            <div class="status-card">
+                <div class="status-icon">🎫</div>
+                <div class="status-text">
+                    <h4 id="myStatusLabel">Not booked</h4>
+                    <p id="myStatusSub">Book a token below to join</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOOK TOKEN -->
+        <div class="section" style="animation-delay:0.08s">
+            <div class="section-title">Book Token <span style="color:rgba(255,255,255,0.25);font-size:10px;font-weight:400;text-transform:none;margin-left:4px;letter-spacing:0">(max 3)</span></div>
+            <input id="name" placeholder="Your Name">
+            <input id="age" type="number" placeholder="Age">
+            <button class="btn-book" onclick="book()">Join the Queue →</button>
+        </div>
+    </div>
+
+    <!-- QUEUE TABLE -->
+    <div class="queue-section">
+        <div class="queue-header">
+            <h3>Current Queue</h3>
+            <div class="live-badge"><div class="live-dot"></div> Live</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Name</th>
+                    <th>Timer</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="queueBody">
+                <tr class="empty-row"><td colspan="5">No one in the queue yet</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Firebase -->
@@ -144,7 +529,6 @@ button {
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <script>
-
 document.addEventListener("DOMContentLoaded", function () {
 
 const firebaseConfig = {
@@ -154,9 +538,7 @@ const firebaseConfig = {
   projectId: "smart-queue-d7fe5"
 };
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 const queueRef = db.ref("queues/kadai");
@@ -173,25 +555,19 @@ let gapTime = 5;
 let startTime = null;
 let qrRendered = false;
 
-if (selectedBusinessId) {
-    localStorage.setItem("customerBusinessId", selectedBusinessId);
-}
+if (selectedBusinessId) localStorage.setItem("customerBusinessId", selectedBusinessId);
 
 if (selectedBusiness) {
-    document.getElementById("pageTitle").innerText = `${selectedBusiness.name} Queue`;
-    document.getElementById("qrBusinessName").innerText = `${selectedBusiness.name} QR`;
+    document.getElementById("pageTitle").innerHTML = selectedBusiness.name + " <span>Queue</span>";
+    document.getElementById("qrBusinessName").innerText = selectedBusiness.name;
 }
 
-/* LIVE QUEUE */
 queueRef.on("value", snapshot => {
     const data = snapshot.val() || {};
-
     currentQueue = Object.keys(data).map(id => ({ id, ...data[id] }));
     currentQueue.sort((a, b) => (a.token || 0) - (b.token || 0));
-
     myBookings = myBookings.filter(id => currentQueue.some(q => q.id === id));
     localStorage.setItem("myBookings", JSON.stringify(myBookings));
-
     render(currentQueue);
 });
 
@@ -202,89 +578,70 @@ metaRef.on("value", snapshot => {
     render(currentQueue);
 });
 
-/* RENDER */
 function render(queue) {
     const body = document.getElementById("queueBody");
     body.innerHTML = "";
 
+    if (queue.length === 0) {
+        body.innerHTML = '<tr class="empty-row"><td colspan="5">Queue is empty · be the first to join</td></tr>';
+        updateMyStatus(queue);
+        return;
+    }
+
     queue.forEach((p, i) => {
         const isMine = myBookings.includes(p.id);
-
         body.innerHTML += `
-        <tr class="${isMine ? 'highlight' : ''}">
-            <td>${p.token || i + 1}</td>
-            <td>${p.name}</td>
-            <td>${formatTime(getRemainingTime(i))}</td>
-            <td>${i === 0 ? "next" : "waiting"}</td>
-            <td>
-                ${isMine ? `<button class="cancel" onclick="cancelBooking('${p.id}')">Cancel</button>` : ""}
-            </td>
+        <tr class="${isMine ? 'row-mine' : ''}">
+            <td><div class="token-badge ${isMine ? 'token-mine' : ''}">${p.token || i + 1}</div></td>
+            <td>${p.name}${isMine ? ' <span style="font-size:11px;color:#7eb8f7;font-weight:600;">(you)</span>' : ''}</td>
+            <td class="timer-cell">${formatTime(getRemainingTime(i))}</td>
+            <td><span class="${i === 0 ? 'status-next' : 'status-waiting'}">${i === 0 ? '● Next' : 'Waiting'}</span></td>
+            <td>${isMine ? `<button class="cancel-btn" onclick="cancelBooking('${p.id}')">Cancel</button>` : ""}</td>
         </tr>`;
     });
 
     updateMyStatus(queue);
 }
 
-/* BOOK */
 window.book = function () {
-
-    if (myBookings.length >= 3) {
-        alert("Max 3 bookings allowed");
-        return;
-    }
-
+    if (myBookings.length >= 3) { alert("Max 3 bookings allowed"); return; }
     const name = document.getElementById("name").value;
     const age = document.getElementById("age").value;
-
-    if (!name || !age) {
-        alert("Enter details");
-        return;
-    }
-
+    if (!name || !age) { alert("Enter your details"); return; }
     const newRef = queueRef.push();
-
-    newRef.set({
-        name,
-        age,
-        method: "Online",
-        token: currentQueue.length + 1,
-        time: Date.now()
-    });
-
+    newRef.set({ name, age, method: "Online", token: currentQueue.length + 1, time: Date.now() });
     myBookings.push(newRef.key);
     localStorage.setItem("myBookings", JSON.stringify(myBookings));
+    document.getElementById("name").value = "";
+    document.getElementById("age").value = "";
 };
 
-/* CANCEL */
 window.cancelBooking = function (id) {
     queueRef.child(id).remove();
-
     myBookings = myBookings.filter(x => x !== id);
     localStorage.setItem("myBookings", JSON.stringify(myBookings));
 };
 
-/* STATUS */
 function updateMyStatus(queue) {
     const my = queue.find(p => myBookings.includes(p.id));
-
-    const el = document.getElementById("myStatus");
+    const labelEl = document.getElementById("myStatusLabel");
+    const subEl = document.getElementById("myStatusSub");
 
     if (!my) {
-        el.innerText = "Not booked";
+        labelEl.innerText = "Not booked";
+        subEl.innerText = "Book a token below to join";
         return;
     }
 
     const index = queue.indexOf(my);
-    el.innerText = `Token ${my.token || index + 1} | ${formatTime(getRemainingTime(index))}`;
+    labelEl.innerText = `Token #${my.token || index + 1}`;
+    subEl.innerText = `${formatTime(getRemainingTime(index))} estimated wait`;
 }
 
 function getRemainingTime(index) {
     if (!startTime) return (index + 1) * gapTime * 60;
-
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const total = (index + 1) * gapTime * 60;
-
-    return Math.max(total - elapsed, 0);
+    return Math.max((index + 1) * gapTime * 60 - elapsed, 0);
 }
 
 function formatTime(sec) {
@@ -293,49 +650,28 @@ function formatTime(sec) {
     return `${m}:${s < 10 ? "0" : ""}${s}`;
 }
 
-setInterval(() => {
-    render(currentQueue);
-}, 1000);
+setInterval(() => render(currentQueue), 1000);
 
 window.toggleQrPopup = function (forceOpen) {
     const popup = document.getElementById("qrPopup");
     const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : !popup.classList.contains("open");
-
     popup.classList.toggle("open", shouldOpen);
-
-    if (shouldOpen) {
-        renderBusinessQr();
-    }
+    if (shouldOpen) renderBusinessQr();
 };
 
 function renderBusinessQr() {
     const qrBox = document.getElementById("businessQrBox");
-
-    if (!selectedBusinessId) {
-        qrBox.innerHTML = "<p>No business selected.</p>";
-        return;
-    }
-
+    if (!selectedBusinessId) { qrBox.innerHTML = "<p style='color:#666'>No business selected.</p>"; return; }
     if (qrRendered) return;
-
-    const qrLink = buildBusinessQrLink();
     qrBox.innerHTML = "";
-
     new QRCode(qrBox, {
-        text: qrLink,
-        width: 200,
-        height: 200
+        text: window.location.origin + "/customer-queue.html?business=" + selectedBusinessId,
+        width: 200, height: 200
     });
-
     qrRendered = true;
-}
-
-function buildBusinessQrLink() {
-    return window.location.origin + "/customer-queue.html?business=" + selectedBusinessId;
 }
 
 });
 </script>
-
 </body>
 </html>

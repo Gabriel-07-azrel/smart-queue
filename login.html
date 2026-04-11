@@ -4,83 +4,352 @@
 <head>
     <meta charset="UTF-8">
     <title>Login | Smart Queue Companion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
         }
 
         body {
-            height: 100vh;
-            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            overflow: hidden;
+            background: #0b1a3b;
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background:
+                url('https://c8.alamy.com/comp/1990478519/mix-race-people-standing-in-queue-line-waiting-for-service-man-holding-smartphone-with-qr-code-and-number-on-screen-digital-queue-management-system-1990478519.jpg')
+                center / cover no-repeat;
+            filter: brightness(0.45) saturate(0.8);
+            z-index: 0;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(11,26,59,0.75) 0%, rgba(30,60,120,0.45) 100%);
+            z-index: 1;
+        }
+
+        .scene {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 2rem;
+            animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
+        .brand-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.03em;
+        }
+
+        .brand-name span {
+            color: #7eb8f7;
+        }
+
         .card {
             width: 100%;
-            max-width: 380px;
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-            text-align: center;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
         }
 
-        .card h2 {
-            margin-bottom: 30px;
+        .card-header {
+            margin-bottom: 2rem;
         }
 
-        .card input {
+        .card-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 300;
+        }
+
+        .divider {
+            width: 36px;
+            height: 2px;
+            background: #7eb8f7;
+            border-radius: 2px;
+            margin-bottom: 10px;
+        }
+
+        .field-group {
+            margin-bottom: 1rem;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 7px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap svg.field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+            stroke: rgba(255,255,255,0.4);
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+        }
+
+        .field-group input {
             width: 100%;
-            padding: 14px;
-            margin-bottom: 16px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
+            padding: 12px 14px 12px 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.08);
+            color: #ffffff;
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
         }
 
-        .card button {
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
+        .field-group input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .field-group input:focus {
+            border-color: rgba(126,184,247,0.6);
+            background: rgba(255,255,255,0.12);
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-field input {
+            padding-right: 44px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            background: transparent;
             border: none;
-            background: #1e88e5;
-            color: white;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.4);
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .toggle-password svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            border: none;
+            background: #ffffff;
+            color: #0b1a3b;
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 1.5rem;
+            letter-spacing: 0.02em;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.92;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
         }
 
         .error {
-            color: red;
-            font-size: 13px;
-            margin-top: 10px;
             display: none;
+            margin-top: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(220, 60, 60, 0.18);
+            border: 1px solid rgba(220, 60, 60, 0.35);
+            color: #ffaaaa;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 1.6rem;
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .token-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(126,184,247,0.12);
+            border: 1px solid rgba(126,184,247,0.25);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 11px;
+            color: #7eb8f7;
+            margin-bottom: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .token-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #7eb8f7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
     </style>
 </head>
 
 <body>
+    <div class="bg"></div>
+    <div class="bg-overlay"></div>
 
-    <div class="card">
-        <h2>Login</h2>
+    <div class="scene">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    <path d="M14 17h3v3"/><path d="M17 14h3"/>
+                </svg>
+            </div>
+            <span class="brand-name">Smart<span>Queue</span></span>
+        </div>
 
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
+        <div class="card">
+            <div class="token-badge">System active</div>
 
-        <button onclick="login()">Continue</button>
+            <div class="card-header">
+                <div class="divider"></div>
+                <h2>Welcome back</h2>
+                <p>Sign in to access your queue dashboard</p>
+            </div>
 
-        <div class="error" id="errorMsg">Invalid username or password</div>
+            <div class="field-group">
+                <label>Username</label>
+                <div class="input-wrap">
+                    <svg class="field-icon" viewBox="0 0 24 24">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                    </svg>
+                    <input type="text" id="username" placeholder="Enter your username">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label>Password</label>
+                <div class="input-wrap password-field">
+                    <svg class="field-icon" viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="11" rx="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <input type="password" id="password" placeholder="Enter your password">
+                    <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button class="submit-btn" onclick="login()">Continue →</button>
+
+            <div class="error" id="errorMsg">Invalid username or password. Please try again.</div>
+
+            <p class="footer-note">Need access? Contact your system administrator.</p>
+        </div>
     </div>
 
     <script>
-
         function login() {
-
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value.trim();
             const errorMsg = document.getElementById("errorMsg");
@@ -88,26 +357,41 @@
             errorMsg.style.display = "none";
 
             if (username === "gabi" && password === "123") {
-
                 localStorage.setItem("userRole", "admin");
                 localStorage.setItem("loggedInUser", "gabi");
-
                 window.location.href = "role.html";
-
             } else if (username === "gabriel" && password === "1234") {
-
                 localStorage.setItem("userRole", "customer");
                 localStorage.setItem("loggedInUser", "gabriel");
-
                 window.location.href = "role.html";
-
             } else {
                 errorMsg.style.display = "block";
             }
         }
 
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+
+        togglePassword.addEventListener("click", function () {
+            const isHidden = passwordInput.type === "password";
+            passwordInput.type = isHidden ? "text" : "password";
+            togglePassword.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+            togglePassword.innerHTML = isHidden
+                ? `<svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 10.7a3 3 0 0 0 4.2 4.2" />
+                    <path d="M9.9 5.2A11 11 0 0 1 12 5c6.4 0 10 7 10 7a17.2 17.2 0 0 1-4 4.6" />
+                    <path d="M6.6 6.7C3.8 8.4 2 12 2 12s3.6 6 10 6c1.7 0 3.2-.4 4.5-1" />
+                  </svg>`
+                : `<svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>`;
+        });
+
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") login();
+        });
     </script>
-
 </body>
-
 </html>
