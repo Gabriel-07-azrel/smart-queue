@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business Dashboard | Smart Queue Companion</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -398,6 +399,20 @@ tbody td {
 @media (max-width: 900px) {
     .main { grid-template-columns: 1fr; padding: 20px; }
     .header { padding: 16px 20px; }
+}
+@media (max-width: 600px) {
+    .header { padding: 12px 14px; }
+    .brand-sub { display: none; }
+    .counter { padding: 7px 12px; font-size: 12px; }
+    .main { padding: 14px; gap: 14px; }
+    .section { padding: 14px; border-radius: 14px; }
+    .queue-section { border-radius: 14px; overflow-x: auto; }
+    .queue-header { padding: 14px 16px; }
+    .queue-header h3 { font-size: 14px; }
+    table { min-width: 540px; }
+    thead th, tbody td { padding: 10px 14px; }
+    .btn-inline-group { flex-direction: row; }
+    .search-row select { width: 80px; }
 }
 </style>
 </head>

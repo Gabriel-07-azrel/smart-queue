@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Business | Smart Queue Companion</title>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -278,6 +279,15 @@
             .page { grid-template-columns: 1fr; padding: 36px 24px; gap: 36px; }
             .info h2 { font-size: 28px; }
             .header { padding: 18px 24px; }
+        }
+        @media (max-width: 600px) {
+            .page { padding: 20px 16px; gap: 24px; }
+            .info { display: none; }
+            .header { padding: 14px 16px; }
+            .card { padding: 1.5rem 1.2rem; border-radius: 18px; }
+            .card-title h3 { font-size: 16px; }
+            .time-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .submit-btn { font-size: 13px; }
         }
     </style>
 </head>
