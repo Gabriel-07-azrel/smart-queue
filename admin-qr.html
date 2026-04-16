@@ -15,6 +15,7 @@
             background: #0b1a3b;
             color: white;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px 24px;
@@ -199,10 +200,12 @@
             margin-top: 1.5rem;
             font-size: 12px;
             color: rgba(255,255,255,0.28);
+            position: relative;
+            z-index: 2;
         }
 
         @media (max-width: 480px) {
-            body { padding: 20px 14px; align-items: flex-start; padding-top: 30px; }
+            body { padding: 24px 16px; }
             .card { padding: 1.8rem 1.3rem; border-radius: 18px; }
             .card h2 { font-size: 18px; }
             #qrcode { width: 180px; height: 180px; }
@@ -246,7 +249,7 @@
         </div>
     </div>
 
-    <p class="footer-note" style="position:relative;z-index:2;">Smart Queue Companion &mdash; Powered by QueueFlow</p>
+    <p class="footer-note-style">Smart Queue Companion &mdash; Powered by QueueFlow</p>
 
     <script>
         const business = JSON.parse(localStorage.getItem("tempBusiness"));
